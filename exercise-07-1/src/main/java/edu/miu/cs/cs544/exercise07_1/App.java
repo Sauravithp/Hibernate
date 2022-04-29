@@ -15,17 +15,17 @@ import edu.miu.cs.cs544.exercise07_1.model.Flight;
 
 public class App {
 
-	private static final SessionFactory sessionFactory;
-	
-	static {
-		// If there is more than one entity, you will have to pass them as a comma delimited argument list to the method below
-		sessionFactory = HibernateUtils.getSessionFactory(Arrays.asList(
-				Airline.class,
-				Airplane.class,
-				Airport.class,
-				Flight.class
-				));
-	}
+    private static final SessionFactory sessionFactory;
+
+    static {
+        // If there is more than one entity, you will have to pass them as a comma delimited argument list to the method below
+        sessionFactory = HibernateUtils.getSessionFactory(Arrays.asList(
+                Airline.class,
+                Airplane.class,
+                Airport.class,
+                Flight.class
+        ));
+    }
 
     public static void main(String[] args) {
         // Hibernate placeholders
@@ -44,7 +44,7 @@ public class App {
             @SuppressWarnings("unchecked")
 
             List<Flight> flights = session.createQuery("SELECT" +
-                    " f" +
+                    " DISTINCT f" +
                     " FROM" +
                     " Flight f" +
                     " LEFT JOIN Airport a ON" +
@@ -52,8 +52,11 @@ public class App {
                     " LEFT JOIN Airplane ap ON" +
                     " ap.id = f.airplane.id" +
                     " Where" +
-                    " a.country = 'USA'" +
-                    " AND ap.capacity > 500").list();
+                    " a.country = :country" +
+                    " AND ap.capacity > :capacity")
+                    .setParameter("country", "USA")
+                    .setParameter("capacity", 500)
+                    .list();
 
             System.out.println("Flight:  Departs:     "
                     + "                  Arrives:");
@@ -62,7 +65,7 @@ public class App {
                         flight.getFlightnr(), flight.getOrigin().getCity(),
                         flight.getDepartureDate(), flight.getDepartureTime(),
                         flight.getDestination().getCity(), flight
-                        .getArrivalDate(), flight.getArrivalTime());
+                                .getArrivalDate(), flight.getArrivalTime());
             }
             tx.commit();
         } catch (HibernateException e) {
@@ -84,7 +87,7 @@ public class App {
             // TODO update HQL
             @SuppressWarnings("unchecked")
             List<Airline> airlines = session.createQuery("SELECT" +
-                    " a" +
+                    " DISTINCT a" +
                     " FROM" +
                     " Airline a" +
                     " LEFT JOIN Flight f ON" +
@@ -92,9 +95,11 @@ public class App {
                     " LEFT JOIN Airplane ap ON" +
                     " ap.id = f.airplane.id" +
                     " Where " +
-                    " ap.model = 'A380'" +
-                    "Group BY" +
-                    " a.name ").list();
+                    " ap.model = :model" +
+                    " Group BY" +
+                    " a.name ")
+                    .setParameter("model","A380")
+                    .list();
             System.out.println("Airlines:");
             for (Airline airline : airlines) {
                 System.out.printf("%-15s", airline.getName());
@@ -119,7 +124,7 @@ public class App {
             // TODO update HQL
             @SuppressWarnings("unchecked")
             List<Flight> flights = session.createQuery("SELECT" +
-                    " f" +
+                    " DISTINCT f" +
                     " FROM" +
                     " Flight f" +
                     " LEFT JOIN Airline a ON" +
@@ -127,10 +132,12 @@ public class App {
                     " LEFT JOIN Airplane ap ON" +
                     " ap.id = f.airplane.id" +
                     " Where " +
-                    " ap.model = '747'" +
-                    " AND a.name <> 'Star Alliance'"+
-                    "Group BY" +
-                    " a.id ").list();
+                    " ap.model = :model" +
+                    " AND a.name <> :airplaneName" +
+                    " Group BY" +
+                    " a.id ")
+                    .setParameter("model","747")
+                    .setParameter("airplaneName","Star Alliance").list();
             System.out.println("Flight:  Departs:     "
                     + "                  Arrives:");
             for (Flight flight : flights) {
@@ -138,7 +145,7 @@ public class App {
                         flight.getFlightnr(), flight.getOrigin().getCity(),
                         flight.getDepartureDate(), flight.getDepartureTime(),
                         flight.getDestination().getCity(), flight
-                        .getArrivalDate(), flight.getArrivalTime()+"%n");
+                                .getArrivalDate(), flight.getArrivalTime() + "%n");
 
             }
             tx.commit();
@@ -161,7 +168,7 @@ public class App {
             // TODO update HQL
             @SuppressWarnings("unchecked")
             List<Flight> flights = session.createQuery("SELECT  " +
-                    "  f  " +
+                    "  DISTINCT f  " +
                     " FROM  " +
                     "  Flight f  " +
                     " WHERE  " +
@@ -174,7 +181,7 @@ public class App {
                         flight.getFlightnr(), flight.getOrigin().getCity(),
                         flight.getDepartureDate(), flight.getDepartureTime(),
                         flight.getDestination().getCity(), flight
-                        .getArrivalDate(), flight.getArrivalTime());
+                                .getArrivalDate(), flight.getArrivalTime());
             }
             tx.commit();
         } catch (HibernateException e) {
