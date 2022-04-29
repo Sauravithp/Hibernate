@@ -42,12 +42,23 @@ public class App {
 
             // TODO update HQL
             @SuppressWarnings("unchecked")
-            List<Flight> flights = session.createQuery("from Flight").list();
+
+            List<Flight> flights = session.createQuery("SELECT" +
+                    " f" +
+                    " FROM" +
+                    " Flight f" +
+                    " LEFT JOIN Airport a ON" +
+                    " f.origin.id = a.id" +
+                    " LEFT JOIN Airplane ap ON" +
+                    " ap.id = f.airplane.id" +
+                    " Where" +
+                    " a.country = 'USA'" +
+                    " AND ap.capacity > 500").list();
 
             System.out.println("Flight:  Departs:     "
                     + "                  Arrives:");
             for (Flight flight : flights) {
-                System.out.printf("%-7s  %-12s %7s %8s  %-12s %7s %8s\n",
+                System.out.printf("%-7s  %-12s %7s %8s  %-12s %7s %8s",
                         flight.getFlightnr(), flight.getOrigin().getCity(),
                         flight.getDepartureDate(), flight.getDepartureTime(),
                         flight.getDestination().getCity(), flight
@@ -72,10 +83,21 @@ public class App {
 
             // TODO update HQL
             @SuppressWarnings("unchecked")
-            List<Airline> airlines = session.createQuery("from Airline").list();
+            List<Airline> airlines = session.createQuery("SELECT" +
+                    " a" +
+                    " FROM" +
+                    " Airline a" +
+                    " LEFT JOIN Flight f ON" +
+                    " f.airline.id = a.id" +
+                    " LEFT JOIN Airplane ap ON" +
+                    " ap.id = f.airplane.id" +
+                    " Where " +
+                    " ap.model = 'A380'" +
+                    "Group BY" +
+                    " a.name ").list();
             System.out.println("Airlines:");
             for (Airline airline : airlines) {
-                System.out.printf("%-15s\n", airline.getName());
+                System.out.printf("%-15s", airline.getName());
             }
             tx.commit();
         } catch (HibernateException e) {
@@ -96,15 +118,28 @@ public class App {
 
             // TODO update HQL
             @SuppressWarnings("unchecked")
-            List<Flight> flights = session.createQuery("from Flight").list();
+            List<Flight> flights = session.createQuery("SELECT" +
+                    " f" +
+                    " FROM" +
+                    " Flight f" +
+                    " LEFT JOIN Airline a ON" +
+                    " f.airline.id = a.id" +
+                    " LEFT JOIN Airplane ap ON" +
+                    " ap.id = f.airplane.id" +
+                    " Where " +
+                    " ap.model = '747'" +
+                    " AND a.name <> 'Star Alliance'"+
+                    "Group BY" +
+                    " a.id ").list();
             System.out.println("Flight:  Departs:     "
                     + "                  Arrives:");
             for (Flight flight : flights) {
-                System.out.printf("%-7s  %-12s %7s %8s  %-12s %7s %8s\n",
+                System.out.printf("%-7s  %-12s %7s %8s  %-12s %7s %8s",
                         flight.getFlightnr(), flight.getOrigin().getCity(),
                         flight.getDepartureDate(), flight.getDepartureTime(),
                         flight.getDestination().getCity(), flight
-                        .getArrivalDate(), flight.getArrivalTime());
+                        .getArrivalDate(), flight.getArrivalTime()+"%n");
+
             }
             tx.commit();
         } catch (HibernateException e) {
@@ -125,11 +160,17 @@ public class App {
 
             // TODO update HQL
             @SuppressWarnings("unchecked")
-            List<Flight> flights = session.createQuery("from Flight").list();
+            List<Flight> flights = session.createQuery("SELECT  " +
+                    "  f  " +
+                    " FROM  " +
+                    "  Flight f  " +
+                    " WHERE  " +
+                    "  departureDate = '2009-08-07'  " +
+                    "  AND TIME_FORMAT (departureTime, '%H:%i') <'12:00'").list();
             System.out.println("Flight:  Departs:     "
                     + "                  Arrives:");
             for (Flight flight : flights) {
-                System.out.printf("%-7s  %-12s %7s %8s  %-12s %7s %8s\n",
+                System.out.printf("%-7s  %-12s %7s %8s  %-12s %7s %8s",
                         flight.getFlightnr(), flight.getOrigin().getCity(),
                         flight.getDepartureDate(), flight.getDepartureTime(),
                         flight.getDestination().getCity(), flight
